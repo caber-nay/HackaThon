@@ -3,6 +3,7 @@ package doyouevenpdp.neu.homely;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -20,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,8 +32,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.TruncatedChunkException;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -92,8 +103,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View view) {
-                attemptLogin();
+            public void onClick(final View view) {
+                view.setEnabled(false);
+                AsyncHttpClient client = new AsyncHttpClient();
+                client.get("http://ec2-34-211-148-99.us-west-2.compute.amazonaws.com:8888/fooddata", new AsyncHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        view.setEnabled(true);
+                        if(responseBody != null) {
+                            openMapsActivity(new String(responseBody));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        view.setEnabled(true);
+                    }
+                });
+                //attemptLogin();
             }
         });
 
@@ -142,13 +169,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         }
     }
+
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
+
+        /*if (mAuthTask != null) {
             return;
         }
 
@@ -159,6 +188,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
+
 
         boolean cancel = false;
         View focusView = null;
@@ -191,7 +221,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
-        }
+        }*/
     }
 
     private boolean isEmailValid(String email) {
@@ -323,7 +353,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // TODO: attempt authentication against a network service.
 
             try {
-                // Simulate network access.
+
+                Requester requester = new Requester();
+                requester.requestLogin(mEmail,mPassword);
+
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 return false;
@@ -348,7 +381,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             if (success) {
                 if (type.equals("user")) {
-                    openMapsActivity();
+                    //openMapsActivity();
                 }
                 finish();
             } else {
@@ -364,8 +397,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-    public void openMapsActivity() {
-        startActivity(new Intent(this,MapsActivity.class));
+    public void openMapsActivity(String response) {
+        Intent intent = new Intent(this,MapsActivity.class);
+        intent.putExtra("response",response);
+        startActivity(intent);
     }
 }
 

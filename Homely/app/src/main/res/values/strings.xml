@@ -20,4 +20,6 @@
         completions."
     </string>
     <string name="title_activity_maps">Map</string>
+    <string name="button_meal">Meal Programs</string>
+    <string name="button_shelters">Shelters</string>
 </resources>

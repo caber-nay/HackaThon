@@ -1,9 +1,11 @@
 package doyouevenpdp.neu.homely;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.SimpleTimeZone;
 
@@ -25,9 +27,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void providerSignIn(View view) {
-        Intent intent = new Intent(this, LoginActivity.class);
+        Toast.makeText(this,"Currently Unavailable",Toast.LENGTH_LONG).show();
+        /*Intent intent = new Intent(this, LoginActivity.class);
         signInType = "provider";
         intent.putExtra(EXTRA_TYPE,signInType);
-        startActivity(intent);
+        startActivity(intent);*/
     }
 }
